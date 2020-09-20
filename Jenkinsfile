@@ -49,16 +49,6 @@ pipeline {
                 sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
-
-        stage('Deploy green container') {
-			steps {
-                withAWS(region:'us-east-2', credentials:'aws-key') { 
-                    sh ''' 
-                        kubectl apply -f ./green-controller.json
-                    '''
-                }
-			}
-		}
     }
 }
 
