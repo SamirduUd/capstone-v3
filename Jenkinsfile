@@ -4,6 +4,8 @@ pipeline {
         dockerCredential = 'dockerhub-user'
         dockerImage = ''
         awsRegion = "us-east-2"
+        awsZone1 = "us-east-2a"
+        awsZone2 = "us-east-2b"
         awsCredential = 'aws-key'
         }
     
@@ -46,12 +48,13 @@ pipeline {
             }
         }
 
-        stage('Set AWS Kubernetes (ECR)') {
+        stage('Create Kubernetes Cluser (AWS)') {
 			steps {
 				withAWS(region:awsRegion, credentials:aws-key) {
-					sh '''
-						kubectl get clusters
-					'''
+					sh "eksctl create cluster --name kub-cluster
+                        --region $awsRegion 
+                        --zones $awsZone1 --zones $awsZone2 
+                        --managed --nodegroup-name kub-cluster-nodes"
 				}
 			}
 		}
