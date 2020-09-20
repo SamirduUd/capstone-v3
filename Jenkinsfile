@@ -3,6 +3,7 @@ pipeline {
         registry = "8if8troin6i4rv2p/capstone-v3"
         dockerCredential = 'dockerhub-user'
         dockerImage = ''
+        ROLE = 'blue'
         awsRepository = "206893810529.dkr.ecr.us-east-2.amazonaws.com/capstone-v3"
         awsRegion = "us-east-2"
         awsZone1 = "us-east-2a"
@@ -49,10 +50,22 @@ pipeline {
             }
         }
 
-        stage('Create Kubernetes Cluser (AWS)') {
+        stage('Set current kubectl context') {
+            steps {
+                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                    sh """
+                    kubectl apply --kubeconfig=${K8S_CONFIG_FILE} \
+                        -f ./infra/k8s/deployments/${ROLE}.yaml \
+                        -f ./infra/k8s/services/${ROLE}.yaml"""
+                    }
+            }
+        }
+
 			steps {
-				withAWS(region:awsRegion, credentials:aws-key) {
-					sh "eksctl create cluster --name kub-cluster --region us-east-2 --zones us-east-2a --zones us-east-2b --managed --nodegroup-name kub-cluster-nodes"
+				withAWS(region:'us-east-2', credentials:'aws-user') {
+					sh '''
+						kubectl config use-context arn:aws:eks:us-east-2:142977788479:cluster/capstonecluster
+					'''
 				}
 			}
 		}
