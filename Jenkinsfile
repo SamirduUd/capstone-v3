@@ -8,7 +8,7 @@ pipeline {
         awsRegion = "us-east-2"
         awsZone1 = "us-east-2a"
         awsZone2 = "us-east-2b"
-        awsCredential = 'aws-user'
+        awsCredential = 'aws-key'
         }
     
     agent any
@@ -52,7 +52,7 @@ pipeline {
 
         stage('Deploy green container') {
 			steps {
-				withAWS(region:'us-east-2', credentials:'aws-user') {
+				withAWS(region:'us-east-2', credentials:'aws-key') {
 					sh '''
 						kubectl apply -f ./green-controller.json
 					'''
