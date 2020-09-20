@@ -1,9 +1,12 @@
 pipeline {
     environment {
         registry = "8if8troin6i4rv2p/capstone-v3"
-        registryCredential = 'dockerhub-user'
+        dockerCredential = 'dockerhub-user'
         dockerImage = ''
+        awsRegion = "us-east-2"
+        awsCredential = 'aws-key'
         }
+    
     agent any
 
     stages {
@@ -30,11 +33,21 @@ pipeline {
         stage('Push Docker Image') {
             steps{
                 script {
-                    docker.withRegistry( '', registryCredential ) {
+                    docker.withRegistry( '', dockerCredential ) {
                     dockerImage.push()
                     }
                 }
             }
         }
+
+        stage('Set AWS Kubernetes (ECR)') {
+			steps {
+				withAWS(region:awsRegion, credentials:aws-key) {
+					sh '''
+						kubectl get clusters
+					'''
+				}
+			}
+		}
     }
 }
