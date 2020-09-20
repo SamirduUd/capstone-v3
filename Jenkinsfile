@@ -7,13 +7,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Cloning our Git') {
+        stage('Cloning Capstone Project from Github') {
             steps {
                 git 'https://github.com/SamirduUd/capstone-v3.git'
             }
-    }
+        }
 
-        stage('Building our image') {
+        stage('Lint HTML') {
+			steps {
+				sh 'tidy -q -e *.html'
+			}
+		}
+
+        stage('Building Docker Image') {
             steps{
                 script {
                     dockerImage = docker.build registry + ":$BUILD_NUMBER"
@@ -21,19 +27,13 @@ pipeline {
             }
         }
 
-        stage('Deploy our image') {
+        stage('Push Docker Image') {
             steps{
                 script {
                     docker.withRegistry( '', registryCredential ) {
                     dockerImage.push()
                     }
                 }
-            }
-        }
-
-        stage('Cleaning up') {
-            steps{
-                sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
     }
