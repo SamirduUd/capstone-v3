@@ -1,33 +1,40 @@
-node {
-    def app
-
-    stage('Clone repository') {
-        /* Cloning the Repository to our Workspace */
-
-        checkout scm
-    }
-
-    stage('Build image') {
-        /* This builds the actual image */
-
-        app = docker.build("8if8troin6i4rv2p/capstone-v3")
-    }
-
-    stage('Test image') {
-        
-        app.inside {
-            echo "Tests passed"
+pipeline {
+    environment {
+        registry = "8if8troin6i4rv2p/capstone-v3"
+        registryCredential = 'dockerhub-user'
+        dockerImage = ''
         }
+    agent any
+
+    stages {
+        stage('Cloning our Git') {
+            steps {
+                git 'https://github.com/SamirduUd/capstone-v3.git'
+            }
     }
 
-    stage('Push image') {
-        /* 
-			You would need to first register with DockerHub before you can push images to your account
-		*/
-        docker.withRegistry('https://registry.hub.docker.com', '8if8troin6i4rv2p/capstone-v3') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
-            } 
-                echo "Trying to Push Docker Build to DockerHub"
+        stage('Building our image') {
+            steps{
+                script {
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                }
+            }
+        }
+
+        stage('Deploy our image') {
+            steps{
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                    dockerImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Cleaning up') {
+            steps{
+                sh "docker rmi $registry:$BUILD_NUMBER"
+            }
+        }
     }
 }
