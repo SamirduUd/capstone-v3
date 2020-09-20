@@ -40,6 +40,12 @@ pipeline {
             }
         }
 
+        stage('Cleaning up') {
+            steps{
+                sh "docker rmi $registry:$BUILD_NUMBER"
+            }
+        }
+
         stage('Set AWS Kubernetes (ECR)') {
 			steps {
 				withAWS(region:awsRegion, credentials:aws-key) {
@@ -49,11 +55,5 @@ pipeline {
 				}
 			}
 		}
-
-        stage('Cleaning up') {
-            steps{
-                sh "docker rmi $registry:$BUILD_NUMBER"
-            }
-        }
     }
 }
