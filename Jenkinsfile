@@ -50,21 +50,11 @@ pipeline {
             }
         }
 
-        stage('Set current kubectl context') {
-            steps {
-                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                    sh """
-                    kubectl apply --kubeconfig=${K8S_CONFIG_FILE} \
-                        -f ./infra/k8s/deployments/${ROLE}.yaml \
-                        -f ./infra/k8s/services/${ROLE}.yaml"""
-                    }
-            }
-        }
-
+        stage('Deploy green container') {
 			steps {
 				withAWS(region:'us-east-2', credentials:'aws-user') {
 					sh '''
-						kubectl config use-context arn:aws:eks:us-east-2:142977788479:cluster/capstonecluster
+						kubectl apply -f ./green-controller.json
 					'''
 				}
 			}
