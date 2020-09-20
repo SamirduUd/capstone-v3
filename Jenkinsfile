@@ -51,9 +51,9 @@ pipeline {
         stage('Create Kubernetes Cluser (AWS)') {
 			steps {
 				withAWS(region:awsRegion, credentials:aws-key) {
-					sh "eksctl create cluster --name kub-cluster
-                        --region $awsRegion 
-                        --zones $awsZone1 --zones $awsZone2 
+					sh "eksctl create cluster --name kub-cluster \\
+                        --region $awsRegion \\
+                        --zones $awsZone1 --zones $awsZone2 \\
                         --managed --nodegroup-name kub-cluster-nodes"
 				}
 			}
