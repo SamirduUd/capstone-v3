@@ -52,7 +52,7 @@ pipeline {
 
         stage('Create Kub Cluster') {
             steps {
-				withAWS(region:'us-east-1', credentials:'ecr_credentials') {
+				withAWS(region:'us-east-2', credentials:'aws-user') {
 					sh '''
 						 eksctl get clusters
 					'''
