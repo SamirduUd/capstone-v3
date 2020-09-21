@@ -49,6 +49,16 @@ pipeline {
                 sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
+
+        stage('Create Kub Cluster') {
+            steps {
+				withAWS(region:'us-east-1', credentials:'ecr_credentials') {
+					sh '''
+						 eksctl get clusters
+					'''
+				}
+			}
+        }
     }
 }
 
